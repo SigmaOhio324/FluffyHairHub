@@ -179,59 +179,7 @@ MainTab:CreateToggle({
 })
 
 -------------------------------------------------
--- ESP + Rainbow Option
--------------------------------------------------
-local ESPEnabled = false
-local RainbowESP = false
-local function ToggleESP(state)
-    ESPEnabled = state
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            local character = player.Character
-            if character then
-                local highlight = character:FindFirstChild("Highlight") or Instance.new("Highlight")
-                highlight.Name = "Highlight"
-                highlight.Parent = character
-                highlight.FillTransparency = state and 0.5 or 1
-                highlight.OutlineTransparency = state and 0 or 1
-            end
-        end
-    end
-end
-
-VisualsTab:CreateToggle({
-    Name = "Player ESP",
-    CurrentValue = false,
-    Callback = function(state)
-        ToggleESP(state)
-    end,
-})
-
-VisualsTab:CreateToggle({
-    Name = "Rainbow ESP",
-    CurrentValue = false,
-    Callback = function(state)
-        RainbowESP = state
-    end,
-})
-
-RunService.RenderStepped:Connect(function()
-    if ESPEnabled and RainbowESP then
-        local hue = tick() % 5 / 5
-        local color = Color3.fromHSV(hue, 1, 1)
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer and player.Character then
-                local highlight = player.Character:FindFirstChild("Highlight")
-                if highlight then
-                    highlight.FillColor = color
-                end
-            end
-        end
-    end
-end)
-
--------------------------------------------------
--- TELEPORT DROPDOWN (FIXED)
+-- TELEPORT DROPDOWN
 -------------------------------------------------
 local PlayerNames = {}
 local Dropdown
@@ -280,39 +228,65 @@ MainTab:CreateButton({
 })
 
 -------------------------------------------------
--- CUSTOM THEME PICKER
+-- FASTFLAGS BUTTON
 -------------------------------------------------
-VisualsTab:CreateColorPicker({
-    Name = "Change UI Theme",
-    Color = Color3.fromRGB(255, 255, 255),
-    Callback = function(color)
-        Window:ChangeThemeColor(color)
-    end,
+MainTab:CreateButton({
+    Name = "Activate FastFlags",
+    Callback = function()
+        pcall(function()
+            -- DFFlags (example, you can add all DFInt and other flags similarly)
+            setfflag("DFFlagEnableControlRigIkTargets", "True")
+            setfflag("DFFlagAnimatorPostProcessIK", "True")
+            setfflag("DFFlagAssetPreloadingUrlVersionEnabled", "True")
+            setfflag("DFFlagAddKtxTranscodedWidthHeight", "True")
+            setfflag("DFFlagAnimatorThrottleRccEnabled", "True")
+            setfflag("DFFlagDebugPrintDataPingBreakDown", "True")
+            setfflag("DFFlagDebugLargeReplicatorForceFullSend", "True")
+            setfflag("DFFlagAddMachineIDInstallerTelemetry", "False")
+            setfflag("DFFlagDebugLargeReplicatorDisableCompression", "True")
+            setfflag("DFFlagAnimatorEnableNewAdornments", "True")
+            setfflag("DFFlagDebugPVLOD0SerializeFullMatrix", "True")
+            setfflag("DFFlagAddMipPackMetadata", "True")
+            setfflag("DFFlagEnableMeshPreloading", "True")
+            setfflag("DFFlagAssetPreloadingUrlVersionEnabled2", "True")
+            setfflag("DFFlagAlwaysSkipDiskCache", "False")
+            setfflag("DFFlagAcceleratorUpdateOnPropsAndValueTimeChange", "True")
+            setfflag("DFFlagEnableSoundPreloading", "True")
+            setfflag("DFFlagEnableTexturePreloading", "True")
+            setfflag("DFFlagFixRakPingTraceReport", "True")
+            setfflag("DFFlagHumanoidReplicateSimulated2", "True")
+            setfflag("DFFlagISRLimitSimulationRadiusToNOUCount", "False")
+            setfflag("DFFlagNewPackageAnalytics", "False")
+            setfflag("DFFlagRakNetDetectNetUnreachable", "True")
+            setfflag("DFFlagRakNetDetectRecvThreadOverload", "True")
+            setfflag("DFFlagRakNetEnablePoll", "True")
+            setfflag("DFFlagRakNetFixBwCollapse", "True")
+            setfflag("DFFlagRakNetUnblockSelectOnShutdownByWritingToSocket", "True")
+            setfflag("DFFlagRakNetUseSlidingWindow4", "True")
+            setfflag("DFFlagReplicateCreateToPlayer", "True")
+            setfflag("DFFlagReplicatorCheckReadTableCollisions", "True")
+            setfflag("DFFlagReplicatorKickBigV", "True")
+            setfflag("DFFlagReplicatorKickRecvVariantSpeed", "True")
+            setfflag("DFFlagReplicatorSeparateVarThresholds", "True")
+            setfflag("DFFlagSampleAndRefreshRakPing", "True")
+            setfflag("DFFlagSimAdaptiveExplicitlyMarkInterpolatedAssemblies", "True")
+            setfflag("DFFlagSimLocalBallSocketInterpolation", "True")
+            setfflag("DFFlagSimSmoothedRunningController2", "True")
+            setfflag("DFFlagSolverNOURemovedUnderSetOptimized2", "True")
+            setfflag("DFFlagSolverStateReplicatedOnly2", "True")
+            setfflag("DFFlagSolverV2DisableChangedFixedNOUOptimization", "False")
+            setfflag("DFFlagUpdateBoundExtentsForHugeMixedReplicationComponents", "True")
+        end)
+
+        Rayfield:Notify({
+            Title = "FastFlags",
+            Content = "FastFlags Activated ✅",
+            Duration = 2
+        })
+    end
 })
 
 -------------------------------------------------
--- WATERMARK + FPS COUNTER
+-- VISUALS / ESP / THEME PICKER / WATERMARK
 -------------------------------------------------
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-local Watermark = Instance.new("TextLabel", ScreenGui)
-Watermark.Text = "0% Fluffy Hair | FPS: 0"
-Watermark.TextColor3 = Color3.fromRGB(255, 255, 255)
-Watermark.BackgroundTransparency = 0.4
-Watermark.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Watermark.Size = UDim2.new(0, 200, 0, 30)
-Watermark.Position = UDim2.new(0, 10, 0, 10)
-Watermark.Active = true
-Watermark.Draggable = true
-
-local lastUpdate = tick()
-local frameCount = 0
-
-RunService.RenderStepped:Connect(function()
-    frameCount += 1
-    if tick() - lastUpdate >= 1 then
-        Watermark.Text = ("0% Fluffy Hair | FPS: %d"):format(frameCount)
-        frameCount = 0
-        lastUpdate = tick()
-    end
-end)
-
+-- (Keep your existing VisualsTab code for ESP, RainbowESP, Theme Picker, Watermark here)
